@@ -148,6 +148,22 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     };
 
+    // Login
+    // Creates a new URLSearchParams object to easily read parameters from the URL.
+    const params = new URLSearchParams(window.location.search);
+
+    // Checks if the URL contains an 'error' parameter.
+    if (params.get('error')) {
+        // If an error is found, get the login error message element by its ID.
+        const errorElement = document.getElementById('loginError');
+
+        // Check if the element exists to prevent errors.
+        if (errorElement) {
+            // Remove the 'hidden' Tailwind class to make the error message visible.
+            errorElement.classList.remove('hidden');
+        }
+    }
+
     // --- Utility Function ---
     const debounce = (func, delay) => {
         let timeout;
@@ -169,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
             link.addEventListener('click', (event) => {
                 event.preventDefault();
                 const target = link.dataset.target;
-                
+
                 drawer.classList.add('translate-x-full');
                 drawerBackdrop.classList.add('hidden');
 
@@ -232,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const initialState = document.getElementById('initialState');
         const loadingState = document.getElementById('loadingState');
         const itemsState = document.getElementById('itemsState');
-        
+
         const handleSearch = () => {
             const searchTerm = searchInput.value.trim();
             if (searchTerm === '') {
@@ -251,9 +267,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     item.description.toLowerCase().includes(searchTerm.toLowerCase())
                 );
-                
+
                 itemsState.innerHTML = searchItems.map(createItemCard).join('');
-                
+
                 loadingState.classList.add('hidden');
                 itemsState.classList.remove('hidden');
             }, 1000);
@@ -271,11 +287,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const itemsGridContainer = document.getElementById("itemsGrid");
         itemsGridContainer.innerHTML = allItems.map(createItemCard).join('');
     };
-    
+
     const renderMyBids = () => {
         const bidsInProgressContainer = document.getElementById("bidsInProgress");
         const bidsEndedContainer = document.getElementById("bidsEnded");
-        
+
         myBids.forEach(bid => {
             const isBiddingOpen = new Date(bid.biddingEnd) > new Date();
             if (isBiddingOpen) {

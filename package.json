@@ -1,0 +1,29 @@
+{
+  "name": "bidding-site",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RichardIli/Bidding-Website.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/RichardIli/Bidding-Website/issues"
+  },
+  "homepage": "https://github.com/RichardIli/Bidding-Website#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
