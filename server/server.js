@@ -16,9 +16,13 @@ app.use(express.static(path.join(__dirname, '../public')));
 const validUsername = 'testuser';
 const validPassword = 'password';
 
-// Route to serve the login page from the public directory
+// Route to serve the login page from the root URL
 app.get('/', (req, res) => {
-    // Send the HTML file from the public directory
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
+// Route to serve the login page from the /login URL
+app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
