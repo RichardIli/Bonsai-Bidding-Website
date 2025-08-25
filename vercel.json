@@ -1,17 +1,15 @@
 {
-    "version": 2,
-    "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/login",
-      "destination": "/index.html"
-    },
+      "src": "server/server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
     {
-      "source": "/",
-      "destination": "/homepage.html"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/homepage.html"
+      "src": "/(.*)",
+      "dest": "server/server.js"
     }
   ]
 }
