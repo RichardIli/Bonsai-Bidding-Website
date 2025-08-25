@@ -18,49 +18,22 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     const createBidCard = (item) => {
         const timeRemaining = calculateTimeRemaining(item.biddingEnd);
+        const timeRemainingTextColor = timeRemaining === "Bidding Ended" ? "text-red-500" : "text-green-500";
         return `
             <div class="bg-white rounded-3xl shadow-lg overflow-hidden transition-transform transform hover:scale-105">
                 <img src="${item.image}" alt="${item.name}" class="w-full h-48 object-cover"
                      onerror="this.onerror=null;this.src='https://placehold.co/300x200/cccccc/000000?text=Image+Not+Found';">
                 <div class="p-4">
-                    <h3 class="text-xl font-semibold text-green-800 mb-2">${item.name}</h3>
+                    <h3 class="text-xl font-semibold text-green-800 mb-2 truncate">${item.name}</h3>
                     <p class="text-gray-600 text-sm truncate">${item.description}</p>
                     <div class="mt-4 flex justify-between items-center">
                         <span class="text-2xl font-bold text-green-600">$${item.currentBid}</span>
                         <div class="text-sm text-right">
                             <span class="block font-medium text-gray-500">Time Left:</span>
-                            <span class="block text-green-500 font-bold">${timeRemaining}</span>
+                            <span class="block ${timeRemainingTextColor} font-bold">${timeRemaining}</span>
                         </div>
                     </div>
-                    <button class="mt-4 w-full bg-green-500 text-white py-2 rounded-xl font-bold hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">Place a Bid</button>
-                </div>
-            </div>
-        `;
-    };
-
-    /**
-     * Creates the HTML string for a general item card.
-     * @param {object} item - The item object.
-     * @param {string} item.itemId - The unique ID of the item.
-     * @param {string} item.image - The URL of the item's image.
-     * @param {string} item.name - The name of the item.
-     * @param {string} item.description - The description of the item.
-     * @param {number} item.startingBid - The starting bid amount.
-     * @param {number} item.currentBid - The current bid amount.
-     * @param {string} item.uploadDate - The date the item was uploaded.
-     * @param {string} item.uploader - The name of the uploader.
-     * @returns {string} The HTML string for an item card.
-     */
-    const createItemCard = (item) => {
-        return `
-            <div class="bg-white rounded-3xl shadow-lg overflow-hidden transition-transform transform hover:scale-105">
-                <img src="${item.image}" alt="${item.name}" class="w-full h-48 object-cover"
-                     onerror="this.onerror=null;this.src='https://placehold.co/300x200/cccccc/000000?text=Image+Not+Found';">
-                <div class="p-4">
-                    <h3 class="text-xl font-semibold text-green-800 mb-2">${item.name}</h3>
-                    <p class="text-gray-600 text-sm">${item.description}</p>
-                    <p class="text-sm text-gray-500 mt-2">Starting Bid: $${item.startingBid}</p>
-                    <p class="text-sm text-gray-500">Current Bid: $${item.currentBid}</p>
+                    <button class="view-item-btn mt-4 w-full bg-green-500 text-white py-2 rounded-xl font-bold hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500" data-item-id="${item.itemId}">View</button>
                 </div>
             </div>
         `;
@@ -177,6 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 itemsGrid.innerHTML += createBidCard(item);
             });
             noResults.classList.add('hidden');
+            setupModal();
         }
     };
 
@@ -311,30 +285,68 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const setupAccountDropdowns = () => {
         // Desktop dropdown
-        const desktopDropdown = document.querySelector('.relative.group');
-        if (desktopDropdown) {
-            desktopDropdown.addEventListener('mouseover', () => {
-                const dropdownMenu = desktopDropdown.querySelector('div');
-                if (dropdownMenu) {
-                    dropdownMenu.classList.remove('hidden');
-                }
-            });
-            desktopDropdown.addEventListener('mouseout', () => {
-                const dropdownMenu = desktopDropdown.querySelector('div');
-                if (dropdownMenu) {
-                    dropdownMenu.classList.add('hidden');
-                }
-            });
-        }
+        const desktopDropdownButton = document.getElementById('desktopAccountDropdown');
+        const desktopDropdownMenu = document.getElementById('desktopAccountMenu');
 
         // Mobile dropdown
         const mobileAccountDropdown = document.getElementById('mobileAccountDropdown');
         const mobileAccountMenu = document.getElementById('mobileAccountMenu');
 
+        // Function to close both dropdowns
+        const closeAllDropdowns = () => {
+            if (desktopDropdownMenu) {
+                desktopDropdownMenu.classList.add('hidden');
+            }
+            if (mobileAccountMenu) {
+                mobileAccountMenu.classList.add('hidden');
+            }
+        };
+
+        // 1. Close dropdown when clicking anywhere on the screen
+        document.addEventListener('click', (e) => {
+            const target = e.target;
+            const isDesktopDropdown = desktopDropdownButton && desktopDropdownButton.contains(target);
+            const isMobileDropdown = mobileAccountDropdown && mobileAccountDropdown.contains(target);
+            const isInsideMenu = desktopDropdownMenu && desktopDropdownMenu.contains(target);
+            const isInsideMobileMenu = mobileAccountMenu && mobileAccountMenu.contains(target);
+
+            // Check if the click is outside both dropdown buttons and menus
+            if (!isDesktopDropdown && !isMobileDropdown && !isInsideMenu && !isInsideMobileMenu) {
+                closeAllDropdowns();
+            }
+        });
+
+        if (desktopDropdownButton && desktopDropdownMenu) {
+            desktopDropdownButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                desktopDropdownMenu.classList.toggle('hidden');
+                // Ensure mobile menu is closed when desktop is opened
+                if (!desktopDropdownMenu.classList.contains('hidden')) {
+                    mobileAccountMenu.classList.add('hidden');
+                }
+            });
+            // 2. Close desktop dropdown when selecting an item
+            desktopDropdownMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    closeAllDropdowns();
+                });
+            });
+        }
+
         if (mobileAccountDropdown && mobileAccountMenu) {
             mobileAccountDropdown.addEventListener('click', (e) => {
                 e.preventDefault();
                 mobileAccountMenu.classList.toggle('hidden');
+                // Ensure desktop menu is closed when mobile is opened
+                if (!mobileAccountMenu.classList.contains('hidden')) {
+                    desktopDropdownMenu.classList.add('hidden');
+                }
+            });
+            // 2. Close mobile dropdown when selecting an item
+            mobileAccountMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    closeAllDropdowns();
+                });
             });
         }
     };
@@ -357,6 +369,67 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     };
+
+    /**
+     * Shows a modal with the detailed information of a selected item.
+     * @param {object} item - The item object to display.
+     */
+    const showItemDetails = (item) => {
+        const modal = document.getElementById('itemModal');
+        const modalContent = document.getElementById('modalContent');
+
+        if (!modal || !modalContent) return;
+
+
+        const timeRemaining = calculateTimeRemaining(item.biddingEnd);
+        const timeRemainingTextColor = timeRemaining === "Bidding Ended" ? "text-red-500" : "text-green-500";
+        // Populate the modal with item details
+        modalContent.innerHTML = `
+            <img src="${item.image}" alt="${item.name}" class="w-full h-64 object-cover rounded-2xl mb-6"
+                 onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/000000?text=Image+Not+Found';">
+            <h3 class="text-3xl font-bold text-green-800 mb-2">${item.name}</h3>
+            <p class="text-gray-600 text-lg leading-relaxed mb-4">${item.description}</p>
+            <div class="flex justify-between items-center text-lg font-semibold text-gray-700 mb-6">
+                <span>Current Bid: <span class="text-green-600 font-bold">$${item.currentBid}</span></span>
+                <span>Time Left: <span class="${timeRemainingTextColor} font-bold">${timeRemaining}</span></span>
+            </div>
+            <button class="w-full bg-green-500 text-white py-3 rounded-full font-bold text-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors">Place a Bid</button>
+        `;
+
+        modal.classList.remove('hidden');
+    };
+
+    const setupModal = () => {
+        const modal = document.getElementById('itemModal');
+        const closeModalButton = document.getElementById('closeModal');
+        const viewItemButtons = document.querySelectorAll('.view-item-btn');
+
+        if (!modal || !closeModalButton || viewItemButtons.length === 0) return;
+
+        // Close modal when clicking the close button
+        closeModalButton.addEventListener('click', () => {
+            modal.classList.add('hidden');
+        });
+
+        // Close modal when clicking on the backdrop
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+
+        // Open modal when clicking on a "View" button
+        viewItemButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const itemId = e.target.dataset.itemId;
+                const item = allItems.find(item => item.itemId == itemId);
+                if (item) {
+                    showItemDetails(item);
+                }
+            });
+        });
+    };
+
 
     const togglePasswordVisibility = () => {
         // Toggle Password Visibility
@@ -384,6 +457,8 @@ document.addEventListener('DOMContentLoaded', () => {
         setupDrawer();
         setupAccountDropdowns();
         setupSearch();
+        setupModal();
+
 
         // Add a check to only run these functions if the necessary HTML elements exist.
         if (document.getElementById('itemsGrid')) {
