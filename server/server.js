@@ -1,10 +1,15 @@
 // server.js
-const express = require('express');
-const path = require('path');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // Initialize the Express application
 const app = express();
 const port = 3000;
+
+// Replicate __dirname functionality in ES Modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Middleware to parse URL-encoded bodies (from form submissions)
 app.use(express.urlencoded({ extended: true }));
